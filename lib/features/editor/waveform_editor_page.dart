@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, depend_on_referenced_packages
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
@@ -329,8 +330,10 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                         )
                         .toList(),
                     onChanged: (value) {
-                      if (value != null)
+                      // FIX: Wrapped in curly braces for strict linting
+                      if (value != null) {
                         setDialogState(() => _selectedSaveType = value);
+                      }
                     },
                   ),
                 ],
@@ -380,10 +383,18 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
       final originalExtension = p.extension(widget.filePath);
 
       String safeName = _fileNameController.text.replaceAll(' ', '_');
-      if (!safeName.endsWith(originalExtension)) safeName += originalExtension;
+
+      // FIX: Wrapped in curly braces for strict linting
+      if (!safeName.endsWith(originalExtension)) {
+        safeName += originalExtension;
+      }
 
       final outputPath = p.join(directory.path, safeName);
-      if (await File(outputPath).exists()) await File(outputPath).delete();
+
+      // FIX: Wrapped in curly braces for strict linting
+      if (await File(outputPath).exists()) {
+        await File(outputPath).delete();
+      }
 
       final arguments = [
         '-y',
@@ -404,7 +415,8 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
         setState(() => _isSaving = false);
 
         if (ReturnCode.isSuccess(returnCode)) {
-          if (mounted)
+          // FIX: Wrapped in curly braces for strict linting
+          if (mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -414,15 +426,19 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                 ),
               ),
             );
+          }
         } else {
           final errorLogs = await session.getLogsAsString();
           debugPrint("🚨 FFMPEG CRASH REPORT 🚨\n$errorLogs");
-          if (mounted)
+
+          // FIX: Wrapped in curly braces for strict linting
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Error: Failed to trim. Check console logs.'),
               ),
             );
+          }
         }
       });
     } catch (e) {
