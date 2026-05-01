@@ -1,5 +1,5 @@
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages, use_build_context_synchronously
 import 'dart:io';
-import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -15,12 +15,9 @@ class SavedTonesPage extends StatefulWidget {
 }
 
 class _SavedTonesPageState extends State<SavedTonesPage> {
-
   final Color primaryColor = const Color(0xFF4A00E0);
   final Color backgroundColor = const Color(0xFFF4F7FC);
-  final Color savedAccentColor = const Color(
-    0xFFF5AF19,
-  ); 
+  final Color savedAccentColor = const Color(0xFFF5AF19);
 
   List<File> _savedFiles = [];
   String _searchQuery = '';
@@ -32,13 +29,10 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
     _loadSavedFiles();
   }
 
-
   Future<void> _loadSavedFiles() async {
     setState(() => _isLoading = true);
     try {
       final directory = await getApplicationDocumentsDirectory();
-
-
       final List<FileSystemEntity> entities = directory.listSync();
       final files = entities
           .whereType<File>()
@@ -50,14 +44,11 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
           )
           .toList();
 
-
       files.sort(
         (a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()),
       );
 
-
       if (!mounted) return;
-
       setState(() {
         _savedFiles = files;
         _isLoading = false;
@@ -71,7 +62,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final filteredFiles = _savedFiles.where((file) {
       final fileName = p.basenameWithoutExtension(file.path).toLowerCase();
       return fileName.contains(_searchQuery);
@@ -91,7 +81,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
       ),
       body: Column(
         children: [
-
           Container(
             color: primaryColor,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -111,8 +100,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
               ),
             ),
           ),
-
-
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: primaryColor))
@@ -131,11 +118,8 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     itemBuilder: (context, index) {
                       final file = filteredFiles[index];
                       final fileName = p.basenameWithoutExtension(file.path);
-
-
                       final fileSize = (file.lengthSync() / (1024 * 1024))
                           .toStringAsFixed(2);
-
 
                       return Card(
                         margin: const EdgeInsets.symmetric(
@@ -203,7 +187,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                             ],
                           ),
                           onTap: () {
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -221,7 +204,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
       ),
     );
   }
-
 
   void _showOptionsDialog(BuildContext context, File file, String fileName) {
     showDialog(
@@ -253,7 +235,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                   ),
                 ),
                 Divider(color: Colors.grey.shade300),
-
                 _buildDialogOption('Edit', () {
                   Navigator.pop(dialogContext);
                   Navigator.push(
@@ -263,7 +244,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     ),
                   );
                 }),
-
                 _buildDialogOption('Set as Default Alarm', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -275,7 +255,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     _showFeedback(context, "Failed to set Alarm");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Notification', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -287,7 +266,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     _showFeedback(context, "Failed to set Notification");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Ringtone', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -299,7 +277,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     _showFeedback(context, "Failed to set Ringtone");
                   }
                 }),
-
                 _buildDialogOption('Share File...', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -312,7 +289,6 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                     _showFeedback(context, "Failed to share file");
                   }
                 }),
-
                 _buildDialogOption('Delete', () {
                   Navigator.pop(dialogContext);
                   _showDeleteConfirmation(context, file, fileName);
@@ -376,7 +352,7 @@ class _SavedTonesPageState extends State<SavedTonesPage> {
                 try {
                   if (await file.exists()) {
                     await file.delete();
-                    await _loadSavedFiles(); 
+                    await _loadSavedFiles();
                     if (!mounted) return;
                     _showFeedback(context, "File deleted successfully");
                   }

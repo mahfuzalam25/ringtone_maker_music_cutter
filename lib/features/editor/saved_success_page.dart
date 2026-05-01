@@ -1,5 +1,5 @@
+// ignore_for_file: deprecated_member_use
 import 'dart:io';
-import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ringtone_set_plus/ringtone_set_plus.dart';
@@ -24,7 +24,7 @@ class SavedSuccessPage extends StatelessWidget {
       backgroundColor: bgDarkBlue,
       appBar: AppBar(
         backgroundColor: headerColor,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         title: const Text(
           'Saved!',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -52,9 +52,7 @@ class SavedSuccessPage extends StatelessWidget {
                   xFile,
                 ], text: 'Listen to my new $saveType!');
               } catch (e) {
-                debugPrint(
-                  "Share error: $e",
-                ); 
+                debugPrint("Share error: $e");
               }
             }, buttonColor),
 
@@ -70,17 +68,12 @@ class SavedSuccessPage extends StatelessWidget {
                 } else {
                   await RingtoneSet.setRingtoneFromFile(file);
                 }
-
-
                 if (!context.mounted) return;
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("$saveType set successfully!")),
                 );
               } catch (e) {
-
                 if (!context.mounted) return;
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Failed to set default.")),
                 );
@@ -90,14 +83,12 @@ class SavedSuccessPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             _buildActionMenuButton('CONTINUE EDITING', () {
-
               Navigator.pop(context);
             }, buttonColor),
 
             const SizedBox(height: 12),
 
             _buildActionMenuButton('CLOSE', () {
-
               Navigator.of(context).popUntil((route) => route.isFirst);
             }, buttonColor),
           ],

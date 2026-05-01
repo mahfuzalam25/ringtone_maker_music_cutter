@@ -1,5 +1,5 @@
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages, use_build_context_synchronously
 import 'dart:io';
-import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -15,12 +15,9 @@ class RecordingsPage extends StatefulWidget {
 }
 
 class _RecordingsPageState extends State<RecordingsPage> {
-
   final Color primaryColor = const Color(0xFF4A00E0);
   final Color backgroundColor = const Color(0xFFF4F7FC);
-  final Color recordingAccentColor = const Color(
-    0xFF1D976C,
-  ); 
+  final Color recordingAccentColor = const Color(0xFF1D976C);
 
   List<File> _recordedFiles = [];
   String _searchQuery = '';
@@ -32,18 +29,15 @@ class _RecordingsPageState extends State<RecordingsPage> {
     _loadRecordedFiles();
   }
 
-
   Future<void> _loadRecordedFiles() async {
     setState(() => _isLoading = true);
     try {
       final mainDirectory = await getApplicationDocumentsDirectory();
       final recordingsDir = Directory(p.join(mainDirectory.path, 'Recordings'));
 
-
       if (!await recordingsDir.exists()) {
         await recordingsDir.create();
       }
-
 
       final mainFiles = mainDirectory.listSync().whereType<File>();
       for (var file in mainFiles) {
@@ -51,7 +45,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
           await file.rename(p.join(recordingsDir.path, p.basename(file.path)));
         }
       }
-
 
       final List<FileSystemEntity> entities = recordingsDir.listSync();
       final files = entities
@@ -61,14 +54,11 @@ class _RecordingsPageState extends State<RecordingsPage> {
           )
           .toList();
 
-
       files.sort(
         (a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()),
       );
 
-
       if (!mounted) return;
-
       setState(() {
         _recordedFiles = files;
         _isLoading = false;
@@ -101,7 +91,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
       ),
       body: Column(
         children: [
-
           Container(
             color: primaryColor,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -121,7 +110,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
               ),
             ),
           ),
-
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: primaryColor))
@@ -142,7 +130,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                       final fileName = p.basenameWithoutExtension(file.path);
                       final fileSize = (file.lengthSync() / (1024 * 1024))
                           .toStringAsFixed(2);
-
 
                       return Card(
                         margin: const EdgeInsets.symmetric(
@@ -223,7 +210,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
     );
   }
 
-
   void _showOptionsDialog(BuildContext context, File file, String fileName) {
     showDialog(
       context: context,
@@ -254,7 +240,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                   ),
                 ),
                 Divider(color: Colors.grey.shade300),
-
                 _buildDialogOption('Edit Recording', () {
                   Navigator.pop(dialogContext);
                   Navigator.push(
@@ -264,7 +249,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     ),
                   );
                 }),
-
                 _buildDialogOption('Set as Default Alarm', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -276,7 +260,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     _showFeedback(context, "Failed to set Alarm");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Notification', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -288,7 +271,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     _showFeedback(context, "Failed to set Notification");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Ringtone', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -300,7 +282,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     _showFeedback(context, "Failed to set Ringtone");
                   }
                 }),
-
                 _buildDialogOption('Share File...', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -313,7 +294,6 @@ class _RecordingsPageState extends State<RecordingsPage> {
                     _showFeedback(context, "Failed to share file");
                   }
                 }),
-
                 _buildDialogOption('Delete', () {
                   Navigator.pop(dialogContext);
                   _showDeleteConfirmation(context, file, fileName);

@@ -1,5 +1,5 @@
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_waveform/just_waveform.dart';
@@ -39,12 +39,9 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
   }
 
   Future<void> _initAudio() async {
-
     try {
       final duration = await _player.setFilePath(widget.filePath);
-
-      if (!mounted) return; 
-
+      if (!mounted) return;
       if (duration != null) {
         setState(() {
           _totalDuration = duration;
@@ -54,41 +51,32 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
       debugPrint("Error loading audio: $e");
     }
 
-
     _player.positionStream.listen((position) {
       final endTime = _totalDuration * _endValue;
       if (_player.playing && position >= endTime) {
         _player.pause();
-        _player.seek(
-          _totalDuration * _startValue,
-        ); 
+        _player.seek(_totalDuration * _startValue);
       }
     });
-
 
     final audioFile = File(widget.filePath);
     final tempDir = await getTemporaryDirectory();
     final waveFile = File(p.join(tempDir.path, 'waveform.wave'));
 
-
     JustWaveform.extract(
       audioInFile: audioFile,
       waveOutFile: waveFile,
-      zoom: const WaveformZoom.pixelsPerSecond(
-        50,
-      ), 
+      zoom: const WaveformZoom.pixelsPerSecond(50),
     ).listen(
       (progress) {
-        if (!mounted) return; 
+        if (!mounted) return;
         setState(() {
           _extractionProgress = progress.progress;
         });
       },
       onDone: () async {
         final waveform = await JustWaveform.parse(waveFile);
-
-        if (!mounted) return; 
-
+        if (!mounted) return;
         setState(() {
           _waveform = waveform;
           _isExtracting = false;
@@ -96,7 +84,7 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
       },
       onError: (e) {
         debugPrint("Waveform Extraction Error: $e");
-        if (!mounted) return; 
+        if (!mounted) return;
         setState(() {
           _isExtracting = false;
         });
@@ -245,7 +233,6 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                                   if (playing) {
                                     _player.pause();
                                   } else {
-
                                     _player.seek(_totalDuration * _startValue);
                                     _player.play();
                                   }
@@ -297,7 +284,6 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
   void _showSaveDialog(BuildContext context) {
     _fileNameController.text =
         "Trimmed_${p.basenameWithoutExtension(widget.filePath)}";
-
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -343,9 +329,8 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                         )
                         .toList(),
                     onChanged: (value) {
-                      if (value != null) {
+                      if (value != null)
                         setDialogState(() => _selectedSaveType = value);
-                      }
                     },
                   ),
                 ],
@@ -367,8 +352,8 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                     ),
                   ),
                   onPressed: () async {
-                    Navigator.pop(dialogContext); 
-                    await _executeTrimming(); 
+                    Navigator.pop(dialogContext);
+                    await _executeTrimming();
                   },
                   child: const Text(
                     "SAVE",
@@ -383,35 +368,22 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
     );
   }
 
-
   Future<void> _executeTrimming() async {
     setState(() => _isSaving = true);
-    _player.pause(); 
+    _player.pause();
 
     try {
-
       final startSeconds =
           (_totalDuration * _startValue).inMilliseconds / 1000.0;
       final endSeconds = (_totalDuration * _endValue).inMilliseconds / 1000.0;
-
-
       final directory = await getApplicationDocumentsDirectory();
-
-
       final originalExtension = p.extension(widget.filePath);
 
       String safeName = _fileNameController.text.replaceAll(' ', '_');
-
-      if (!safeName.endsWith(originalExtension)) {
-        safeName += originalExtension;
-      }
+      if (!safeName.endsWith(originalExtension)) safeName += originalExtension;
 
       final outputPath = p.join(directory.path, safeName);
-
-      if (await File(outputPath).exists()) {
-        await File(outputPath).delete();
-      }
-
+      if (await File(outputPath).exists()) await File(outputPath).delete();
 
       final arguments = [
         '-y',
@@ -426,17 +398,13 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
         outputPath,
       ];
 
-
       await FFmpegKit.executeWithArguments(arguments).then((session) async {
         final returnCode = await session.getReturnCode();
-
-        if (!mounted) return; 
-
+        if (!mounted) return;
         setState(() => _isSaving = false);
 
         if (ReturnCode.isSuccess(returnCode)) {
-
-          if (mounted) {
+          if (mounted)
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -446,30 +414,24 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                 ),
               ),
             );
-          }
         } else {
-
           final errorLogs = await session.getLogsAsString();
-          debugPrint("🚨 FFMPEG CRASH REPORT 🚨");
-          debugPrint(errorLogs);
-
-          if (mounted) {
+          debugPrint("🚨 FFMPEG CRASH REPORT 🚨\n$errorLogs");
+          if (mounted)
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Error: Failed to trim. Check console logs.'),
               ),
             );
-          }
         }
       });
     } catch (e) {
-      if (!mounted) return; 
+      if (!mounted) return;
       setState(() => _isSaving = false);
       debugPrint("System Catch Error: $e");
     }
   }
 }
-
 
 class WaveformPainter extends CustomPainter {
   final Waveform waveform;
@@ -490,22 +452,18 @@ class WaveformPainter extends CustomPainter {
       ..color = waveColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-
     final disabledPaint = Paint()
       ..color = waveColor.withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-
     final path = Path();
     final disabledPath = Path();
 
     final width = size.width;
     final height = size.height;
     final halfHeight = height / 2;
-
     final samples = waveform.data;
     final step = samples.length / width;
-
     final startX = width * startPercent;
     final endX = width * endPercent;
 
@@ -514,14 +472,11 @@ class WaveformPainter extends CustomPainter {
       if (sampleIndex < samples.length) {
         final sample = samples[sampleIndex].abs() / 32768.0;
         final y = sample * halfHeight;
-
         final targetPath = (i >= startX && i <= endX) ? path : disabledPath;
-
         targetPath.moveTo(i.toDouble(), halfHeight - y);
         targetPath.lineTo(i.toDouble(), halfHeight + y);
       }
     }
-
     canvas.drawPath(disabledPath, disabledPaint);
     canvas.drawPath(path, paint);
   }

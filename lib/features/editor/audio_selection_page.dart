@@ -1,5 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'dart:io';
-import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:ringtone_set_plus/ringtone_set_plus.dart';
@@ -18,16 +18,14 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
   String _searchQuery = '';
   late Future<List<SongModel>> _songsFuture;
 
-
   final Color primaryColor = const Color(0xFF4A00E0);
   final Color backgroundColor = const Color(0xFFF4F7FC);
 
   @override
   void initState() {
     super.initState();
-    _fetchSongs(); 
+    _fetchSongs();
   }
-
 
   void _fetchSongs() {
     _songsFuture = _audioQuery.querySongs(
@@ -72,10 +70,9 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
               ),
             ),
           ),
-
           Expanded(
             child: FutureBuilder<List<SongModel>>(
-              future: _songsFuture, 
+              future: _songsFuture,
               builder: (context, item) {
                 if (item.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -132,7 +129,7 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D3142), 
+                            color: Color(0xFF2D3142),
                           ),
                         ),
                         subtitle: Text(
@@ -166,7 +163,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
     );
   }
 
-
   void _showOptionsDialog(BuildContext context, SongModel song) {
     showDialog(
       context: context,
@@ -198,7 +194,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                   ),
                 ),
                 Divider(color: Colors.grey.shade300),
-
                 _buildDialogOption('Edit', () {
                   Navigator.pop(dialogContext);
                   Navigator.push(
@@ -208,7 +203,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                     ),
                   );
                 }),
-
                 _buildDialogOption('Set as Default Alarm', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -221,7 +215,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                     _showFeedback(context, "Failed to set Alarm");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Notification', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -234,7 +227,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                     _showFeedback(context, "Failed to set Notification");
                   }
                 }),
-
                 _buildDialogOption('Set as Default Ringtone', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -247,7 +239,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                     _showFeedback(context, "Failed to set Ringtone");
                   }
                 }),
-
                 _buildDialogOption('Share File...', () async {
                   Navigator.pop(dialogContext);
                   try {
@@ -261,7 +252,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                     _showFeedback(context, "Failed to share file");
                   }
                 }),
-
                 _buildDialogOption('Delete', () {
                   Navigator.pop(dialogContext);
                   _showDeleteConfirmation(context, song);
@@ -293,8 +283,6 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
     );
   }
 
-
-
   void _showDeleteConfirmation(BuildContext context, SongModel song) {
     showDialog(
       context: context,
@@ -324,14 +312,10 @@ class _AudioSelectionPageState extends State<AudioSelectionPage> {
                   final file = File(song.data);
                   if (await file.exists()) {
                     await file.delete();
-
-
                     if (!mounted) return;
-
                     setState(() {
                       _fetchSongs();
                     });
-
                     _showFeedback(context, "File deleted successfully");
                   }
                 } catch (e) {

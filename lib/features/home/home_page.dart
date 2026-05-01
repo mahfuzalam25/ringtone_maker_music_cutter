@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:ringtone_maker_music_cutter/core/utils/permissions_handler.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/audio_selection_page.dart';
@@ -13,12 +14,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
+  // Professional color palette
   final Color primaryColor = const Color(0xFF4A00E0);
   final Color secondaryColor = const Color(0xFF8E2DE2);
   final Color backgroundColor = const Color(0xFFF4F7FC);
-
-
 
   @override
   void initState() {
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'My Studio',
+                      'Studio',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -97,10 +96,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-
           const SizedBox(height: 10),
-
-
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
@@ -125,12 +121,8 @@ class _HomePageState extends State<HomePage> {
                         await PermissionsHandler.requestStoragePermission(
                           context,
                         );
-
-
                     if (!mounted) return;
-
                     if (hasPermission) {
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -155,12 +147,8 @@ class _HomePageState extends State<HomePage> {
                         await PermissionsHandler.requestMicrophonePermission(
                           context,
                         );
-
-
                     if (!mounted) return;
-
                     if (hasMicPermission) {
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -181,7 +169,6 @@ class _HomePageState extends State<HomePage> {
                     const Color(0xFFF12711),
                   ],
                   onTap: () {
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -230,8 +217,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-
-
           Container(
             width: double.infinity,
             height: 65,
@@ -263,8 +248,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-
 
   Widget _buildPremiumCard({
     required String title,

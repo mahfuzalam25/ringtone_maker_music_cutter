@@ -1,6 +1,6 @@
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -15,12 +15,9 @@ class RecordAudioPage extends StatefulWidget {
 }
 
 class _RecordAudioPageState extends State<RecordAudioPage> {
-
   final AudioRecorder _audioRecorder = AudioRecorder();
   bool _isRecording = false;
   bool _isHighQuality = true;
-
-
   int _recordDuration = 0;
   Timer? _timer;
 
@@ -35,7 +32,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     _recordDuration = 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (!mounted) {
-        t.cancel(); 
+        t.cancel();
         return;
       }
       setState(() => _recordDuration++);
@@ -52,54 +49,42 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     try {
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
-
         final tempPath = p.join(tempDir.path, 'temp_recording.m4a');
-
-
         final config = RecordConfig(
           encoder: AudioEncoder.aacLc,
           bitRate: _isHighQuality ? 128000 : 64000,
           sampleRate: 44100,
         );
-
         await _audioRecorder.start(config, path: tempPath);
-
-        if (!mounted) return; 
-
+        if (!mounted) return;
         setState(() => _isRecording = true);
         _startTimer();
       }
     } catch (e) {
-      debugPrint("Recording failed to start: $e"); 
+      debugPrint("Recording failed to start: $e");
     }
   }
 
   Future<void> _stopRecording() async {
     try {
       final path = await _audioRecorder.stop();
-
-      if (!mounted) return; 
-
+      if (!mounted) return;
       _timer?.cancel();
       setState(() => _isRecording = false);
-
-      if (path != null) {
-        _showSaveDialog(path);
-      }
+      if (path != null) _showSaveDialog(path);
     } catch (e) {
-      debugPrint("Recording failed to stop: $e"); 
+      debugPrint("Recording failed to stop: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     const Color bgDarkBlue = Color(0xFF0D3B66);
-    const Color headerColor = Color(0xFF1E88E5);
 
     return Scaffold(
       backgroundColor: bgDarkBlue,
       appBar: AppBar(
-        backgroundColor: bgDarkBlue, 
+        backgroundColor: bgDarkBlue,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
@@ -115,8 +100,6 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-
-
           Container(
             width: 200,
             height: 200,
@@ -136,10 +119,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               ),
             ),
           ),
-
           const Spacer(flex: 3),
-
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -150,7 +130,10 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               const SizedBox(width: 10),
               Switch(
                 value: _isHighQuality,
-                activeColor: const Color(0xFF00BFA5), 
+                activeThumbColor: const Color(
+                  0xFF00BFA5,
+                ), // Fixed activeColor deprecation
+                activeTrackColor: const Color(0xFF00BFA5).withOpacity(0.5),
                 onChanged: _isRecording
                     ? null
                     : (value) {
@@ -159,9 +142,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
           Text(
             _isRecording
                 ? 'Recording in progress...'
@@ -172,10 +153,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 40),
-
-
           GestureDetector(
             onTap: _isRecording ? _stopRecording : _startRecording,
             child: Container(
@@ -194,19 +172,16 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
               ),
             ),
           ),
-
           const SizedBox(height: 50),
         ],
       ),
     );
   }
 
-
   void _showSaveDialog(String tempPath) {
     final TextEditingController nameController = TextEditingController(
       text: "DraftRecording_${DateTime.now().millisecondsSinceEpoch}.m4a",
     );
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -250,11 +225,12 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-
-                File(tempPath).delete().catchError(
-                  (e) => debugPrint(e.toString()),
-                ); 
-                setState(() => _recordDuration = 0); 
+                try {
+                  File(tempPath).deleteSync(); // Fixed invalid catchError
+                } catch (e) {
+                  debugPrint(e.toString());
+                }
+                setState(() => _recordDuration = 0);
               },
               child: const Text(
                 "CANCEL",
@@ -277,20 +253,13 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
     );
   }
 
-
   Future<void> _saveAndShowEditPrompt(String tempPath, String fileName) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-
-
       final recordingsDir = Directory(p.join(directory.path, 'Recordings'));
-      if (!await recordingsDir.exists()) {
-        await recordingsDir.create();
-      }
+      if (!await recordingsDir.exists()) await recordingsDir.create();
 
       if (!fileName.endsWith('.m4a')) fileName += '.m4a';
-
-
       final savedPath = p.join(recordingsDir.path, fileName);
       await File(tempPath).copy(savedPath);
       await File(tempPath).delete();
@@ -345,7 +314,7 @@ class _RecordAudioPageState extends State<RecordAudioPage> {
         },
       );
     } catch (e) {
-      debugPrint("Error saving file: $e"); 
+      debugPrint("Error saving file: $e");
     }
   }
 }

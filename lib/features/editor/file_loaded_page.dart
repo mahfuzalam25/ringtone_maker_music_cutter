@@ -1,8 +1,9 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/waveform_editor_page.dart';
 
 class FileLoadedPage extends StatelessWidget {
-  final String filePath; 
+  final String filePath;
 
   const FileLoadedPage({super.key, required this.filePath});
 
@@ -23,7 +24,6 @@ class FileLoadedPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -37,7 +37,6 @@ class FileLoadedPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
-
               const Text(
                 'File Loaded Successfully',
                 style: TextStyle(
@@ -52,10 +51,7 @@ class FileLoadedPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
-
               const SizedBox(height: 50),
-
-
               SizedBox(
                 width: double.infinity,
                 height: 55,
