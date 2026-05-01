@@ -18,8 +18,6 @@ void main() {
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
 
-    // FIX 2: Create a real, empty temporary directory for the tests instead of using '.'
-    // This stops the test from scanning the entire GitHub repository and timing out.
     final testDir = Directory.systemTemp.createTempSync('ringtone_test_dir');
 
     // 1. Mock Path Provider (Storage)
@@ -29,7 +27,7 @@ void main() {
           (MethodCall methodCall) async {
             if (methodCall.method == 'getApplicationDocumentsDirectory' ||
                 methodCall.method == 'getTemporaryDirectory') {
-              return testDir.path; // Return the safe, empty folder
+              return testDir.path;
             }
             return null;
           },
@@ -41,7 +39,7 @@ void main() {
           const MethodChannel('com.lucasjosino.on_audio_query'),
           (MethodCall methodCall) async {
             if (methodCall.method == 'querySongs') {
-              return []; // Return an empty music library
+              return [];
             }
             return null;
           },
@@ -52,7 +50,7 @@ void main() {
         .setMockMethodCallHandler(
           const MethodChannel('com.ryanheise.just_audio.methods'),
           (MethodCall methodCall) async {
-            return {}; // Return dummy object to prevent player crash
+            return {};
           },
         );
   });
@@ -63,7 +61,6 @@ void main() {
     testWidgets('HomePage renders all grid items and headers', (
       WidgetTester tester,
     ) async {
-      // FIX 1: Expand the virtual test screen so the GridView doesn't push items off-screen
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -72,8 +69,6 @@ void main() {
 
       expect(find.text('Studio'), findsOneWidget);
       expect(find.text('Mp3 Cutter & Ringtone Maker'), findsOneWidget);
-
-      // Now it will easily find these because the screen is tall enough!
       expect(find.text('Cut Audio'), findsOneWidget);
       expect(find.text('Record'), findsOneWidget);
       expect(find.text('Saved Tones'), findsOneWidget);
@@ -84,7 +79,12 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const MaterialApp(home: RecordingsPage()));
-      await tester.pumpAndSettle();
+
+      // FIX: Manually advance the clock instead of waiting for animations to settle
+      await tester.pump(); // Triggers the initial build
+      await tester.pump(
+        const Duration(seconds: 1),
+      ); // Fast-forwards past the loading spinner
 
       expect(find.text('My Recordings'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
@@ -95,7 +95,10 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const MaterialApp(home: SavedTonesPage()));
-      await tester.pumpAndSettle();
+
+      // FIX: Manually advance the clock
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.text('My Creations'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
@@ -108,7 +111,10 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const MaterialApp(home: AudioSelectionPage()));
-      await tester.pumpAndSettle();
+
+      // FIX: Manually advance the clock
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.text('All Available Music'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);

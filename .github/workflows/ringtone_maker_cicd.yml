@@ -11,7 +11,7 @@ env:
   BUILD_IOS: true
   SIGNING_ENABLED: false
   DEPLOY_ENABLED: false
-  # Unlocks 4GB of RAM for the Android compiler to handle heavy audio plugins without crashing
+
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
 
 jobs:
@@ -69,7 +69,7 @@ jobs:
   build_ios:
     name: Build iOS
     runs-on: macos-latest
-    # Removed "needs: build_android" so this runs simultaneously with Android!
+
 
     steps:
       - name: Checkout code
