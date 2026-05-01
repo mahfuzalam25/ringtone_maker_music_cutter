@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,11 +15,12 @@ import 'package:ringtone_maker_music_cutter/features/editor/record_audio_page.da
 
 void main() {
   // --- TEST SETUP & HARDWARE MOCKING ---
-  // Because widget tests run on a PC and not a physical Android device,
-  // we must intercept all native hardware requests (storage, microphone, audio player)
-  // and return "fake" data so the UI can render without throwing a MissingPluginException.
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
+
+    // FIX 2: Create a real, empty temporary directory for the tests instead of using '.'
+    // This stops the test from scanning the entire GitHub repository and timing out.
+    final testDir = Directory.systemTemp.createTempSync('ringtone_test_dir');
 
     // 1. Mock Path Provider (Storage)
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -27,7 +29,7 @@ void main() {
           (MethodCall methodCall) async {
             if (methodCall.method == 'getApplicationDocumentsDirectory' ||
                 methodCall.method == 'getTemporaryDirectory') {
-              return '.'; // Return root directory as a fake hard drive
+              return testDir.path; // Return the safe, empty folder
             }
             return null;
           },
@@ -61,10 +63,17 @@ void main() {
     testWidgets('HomePage renders all grid items and headers', (
       WidgetTester tester,
     ) async {
+      // FIX 1: Expand the virtual test screen so the GridView doesn't push items off-screen
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
       await tester.pumpWidget(const MaterialApp(home: HomePage()));
 
       expect(find.text('Studio'), findsOneWidget);
       expect(find.text('Mp3 Cutter & Ringtone Maker'), findsOneWidget);
+
+      // Now it will easily find these because the screen is tall enough!
       expect(find.text('Cut Audio'), findsOneWidget);
       expect(find.text('Record'), findsOneWidget);
       expect(find.text('Saved Tones'), findsOneWidget);
@@ -103,7 +112,6 @@ void main() {
 
       expect(find.text('All Available Music'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
-      // Because we mocked the query to return an empty list, it should show this text:
       expect(find.text('No music found on this device'), findsOneWidget);
     });
 
@@ -125,8 +133,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(home: WaveformEditorPage(filePath: 'test_song.mp3')),
       );
-      await tester
-          .pump(); // We use pump() instead of pumpAndSettle() because of ongoing stream listeners
+      await tester.pump();
 
       expect(find.text('test_song.mp3'), findsOneWidget);
       expect(find.byIcon(Icons.save), findsOneWidget);
