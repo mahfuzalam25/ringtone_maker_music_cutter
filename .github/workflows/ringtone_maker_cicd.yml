@@ -1,0 +1,96 @@
+name: Ringtone Maker & Music Cutter CI/CD
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+
+env:
+  BUILD_APK: true
+  BUILD_AAB: false
+  BUILD_IOS: true
+  SIGNING_ENABLED: false
+  DEPLOY_ENABLED: false
+  # Unlocks 4GB of RAM for the Android compiler to handle heavy audio plugins without crashing
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
+
+jobs:
+  build_android:
+    name: Build Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-warnings
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build APK
+        if: env.BUILD_APK == 'true'
+        run: flutter build apk --release
+
+      - name: Build AAB
+        if: env.BUILD_AAB == 'true'
+        run: flutter build appbundle
+
+      - name: Upload APK
+        if: env.BUILD_APK == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB
+        if: env.BUILD_AAB == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build_ios:
+    name: Build iOS
+    runs-on: macos-latest
+    # Removed "needs: build_android" so this runs simultaneously with Android!
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (Unsigned)
+        run: flutter build ios --release --no-codesign
+
+      - name: Zip the Runner.app folder
+        run: zip -r ios_app.zip build/ios/iphoneos/Runner.app
+
+      - name: Upload iOS App
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ios
+          path: ios_app.zip
