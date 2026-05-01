@@ -80,11 +80,10 @@ void main() {
     ) async {
       await tester.pumpWidget(const MaterialApp(home: RecordingsPage()));
 
-      // FIX: Manually advance the clock instead of waiting for animations to settle
-      await tester.pump(); // Triggers the initial build
-      await tester.pump(
-        const Duration(seconds: 1),
-      ); // Fast-forwards past the loading spinner
+      // FIX: Loop the pump to clear the multiple async 'await' gaps in this specific page
+      for (int i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
 
       expect(find.text('My Recordings'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
@@ -96,9 +95,9 @@ void main() {
     ) async {
       await tester.pumpWidget(const MaterialApp(home: SavedTonesPage()));
 
-      // FIX: Manually advance the clock
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      for (int i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
 
       expect(find.text('My Creations'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
@@ -112,9 +111,9 @@ void main() {
     ) async {
       await tester.pumpWidget(const MaterialApp(home: AudioSelectionPage()));
 
-      // FIX: Manually advance the clock
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      for (int i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
 
       expect(find.text('All Available Music'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
