@@ -43,7 +43,7 @@ class InfoPopupWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4A00E0).withOpacity(0.1),
+                    color: const Color(0xFF4A00E0).withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -52,10 +52,10 @@ class InfoPopupWidget extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Image.asset(
-                  'assets/meetsfixer_logo.png',
+                  'assets/nexacore_logo.png',
                   errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.business, 
-                    size: 40, 
+                    Icons.business,
+                    size: 40,
                     color: Color(0xFF4A00E0),
                   ),
                 ),

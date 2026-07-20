@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ringtone_maker_music_cutter/core/utils/permissions_handler.dart';
 import 'package:ringtone_maker_music_cutter/core/widgets/info_popup_widget.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/audio_selection_page.dart';
@@ -20,9 +21,41 @@ class _HomePageState extends State<HomePage> {
   final Color secondaryColor = const Color(0xFF8E2DE2);
   final Color backgroundColor = const Color(0xFFF4F7FC);
 
+  // AdMob Banner Variables
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      // adUnitId: 'ca-app-pub-3993160111071835/9450092528', // Real Banner ID
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Test Banner ID
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -238,33 +271,20 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          Container(
-            width: double.infinity,
-            height: 65,
-            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'Ad Placement',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-            ),
-          ),
+
+          // ==========================================
+          // ADMOB BANNER PLACEMENT
+          // ==========================================
+          if (_isBannerAdReady && _bannerAd != null)
+            Container(
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              margin: const EdgeInsets.only(bottom: 16),
+              child: AdWidget(ad: _bannerAd!),
+            )
+          else
+            // Fallback empty space if ad fails to load
+            const SizedBox(height: 16),
         ],
       ),
     );

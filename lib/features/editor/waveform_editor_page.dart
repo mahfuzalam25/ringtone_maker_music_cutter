@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new/return_code.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/saved_success_page.dart';
 
 class WaveformEditorPage extends StatefulWidget {
@@ -32,10 +33,32 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
   String _selectedSaveType = 'Ringtone';
   final TextEditingController _fileNameController = TextEditingController();
 
+  // AdMob Interstitial Variable
+  InterstitialAd? _interstitialAd;
+
   @override
   void initState() {
     super.initState();
     _initAudio();
+    _loadInterstitialAd();
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      // adUnitId:'ca-app-pub-3993160111071835/8767566240', // Real Interstitial ID
+      adUnitId: 'ca-app-pub-3940256099942544/1033173712', // Test Interstitial ID
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          _interstitialAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('InterstitialAd failed to load: $error');
+          _interstitialAd = null;
+        },
+      ),
+    );
   }
 
   Future<void> _initAudio() async {
@@ -96,6 +119,7 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
   void dispose() {
     _player.dispose();
     _fileNameController.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -329,7 +353,6 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
                         )
                         .toList(),
                     onChanged: (value) {
-                      // FIX: Wrapped in curly braces for strict linting
                       if (value != null) {
                         setDialogState(() => _selectedSaveType = value);
                       }
@@ -383,14 +406,12 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
 
       String safeName = _fileNameController.text.replaceAll(' ', '_');
 
-      // FIX: Wrapped in curly braces for strict linting
       if (!safeName.endsWith(originalExtension)) {
         safeName += originalExtension;
       }
 
       final outputPath = p.join(directory.path, safeName);
 
-      // FIX: Wrapped in curly braces for strict linting
       if (await File(outputPath).exists()) {
         await File(outputPath).delete();
       }
@@ -414,23 +435,58 @@ class _WaveformEditorPageState extends State<WaveformEditorPage> {
         setState(() => _isSaving = false);
 
         if (ReturnCode.isSuccess(returnCode)) {
-          // FIX: Wrapped in curly braces for strict linting
           if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SavedSuccessPage(
-                  savedFilePath: outputPath,
-                  saveType: _selectedSaveType,
+            // ==========================================
+            // ADMOB INTERSTITIAL LOGIC
+            // ==========================================
+            if (_interstitialAd != null) {
+              _interstitialAd!.fullScreenContentCallback =
+                  FullScreenContentCallback(
+                    onAdDismissedFullScreenContent: (ad) {
+                      ad.dispose();
+                      // Navigate after ad is closed
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SavedSuccessPage(
+                            savedFilePath: outputPath,
+                            saveType: _selectedSaveType,
+                          ),
+                        ),
+                      );
+                    },
+                    onAdFailedToShowFullScreenContent: (ad, error) {
+                      ad.dispose();
+                      // Navigate immediately if ad fails to show
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SavedSuccessPage(
+                            savedFilePath: outputPath,
+                            saveType: _selectedSaveType,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+              _interstitialAd!.show();
+            } else {
+              // Navigate immediately if ad never loaded
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SavedSuccessPage(
+                    savedFilePath: outputPath,
+                    saveType: _selectedSaveType,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }
         } else {
           final errorLogs = await session.getLogsAsString();
           debugPrint("🚨 FFMPEG CRASH REPORT 🚨\n$errorLogs");
 
-          // FIX: Wrapped in curly braces for strict linting
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(

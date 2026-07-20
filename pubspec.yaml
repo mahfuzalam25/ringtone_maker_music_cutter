@@ -35,7 +35,7 @@ dependencies:
   just_audio: "0.10.5"
   just_waveform: "0.0.7"
   ffmpeg_kit_flutter_new: "4.1.0"
-  # google_mobile_ads: "8.0.0"
+  google_mobile_ads: ^9.0.0
   hive: "2.2.3"
   hive_flutter: "1.1.0"
   path_provider: "2.1.5"
