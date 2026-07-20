@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:ringtone_maker_music_cutter/core/utils/permissions_handler.dart';
+import 'package:ringtone_maker_music_cutter/core/widgets/info_popup_widget.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/audio_selection_page.dart';
 import 'package:ringtone_maker_music_cutter/features/editor/record_audio_page.dart';
 import 'package:ringtone_maker_music_cutter/features/home/recordings_page.dart';
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Studio',
+                      'Your Studio',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -202,7 +203,17 @@ class _HomePageState extends State<HomePage> {
                     const Color(0xFF4568DC),
                     const Color(0xFFB06AB3),
                   ],
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const InfoPopupWidget(
+                        title: 'About App',
+                        description:
+                            'MP3 Cutter & Ringtone Maker is a premium audio utility designed to provide precise trimming and studio-quality recording directly on your device.',
+                        buttonText: 'CLOSE',
+                      ),
+                    );
+                  },
                 ),
                 _buildPremiumCard(
                   title: 'More Apps',
@@ -212,7 +223,17 @@ class _HomePageState extends State<HomePage> {
                     const Color(0xFF3A1C71),
                     const Color(0xFFD76D77),
                   ],
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const InfoPopupWidget(
+                        title: 'More from NexaCore',
+                        description:
+                            'Explore our full suite of professional software tools, productivity apps, and premium utilities available on the Play Store.',
+                        buttonText: 'DISCOVER',
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

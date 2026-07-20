@@ -65,6 +65,30 @@ void main() {
       expect(find.text('Recordings'), findsOneWidget);
     });
 
+    testWidgets('HomePage opens About and More Apps popups', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const MaterialApp(home: HomePage()));
+
+      // Test About Popup
+      await tester.tap(find.text('About'));
+      await tester.pumpAndSettle();
+      expect(find.text('About App'), findsOneWidget);
+      await tester.tap(find.text('CLOSE'));
+      await tester.pumpAndSettle();
+
+      // Test More Apps Popup
+      await tester.tap(find.text('More Apps'));
+      await tester.pumpAndSettle();
+      expect(find.text('More from NexaCore'), findsOneWidget);
+      await tester.tap(find.text('DISCOVER'));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets(
       'RecordingsPage renders empty state or loading state successfully',
       (WidgetTester tester) async {
