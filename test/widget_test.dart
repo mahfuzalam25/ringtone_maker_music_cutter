@@ -57,7 +57,7 @@ void main() {
 
       await tester.pumpWidget(const MaterialApp(home: HomePage()));
 
-      expect(find.text('Studio'), findsOneWidget);
+      expect(find.text('Your Studio'), findsOneWidget);
       expect(find.text('Mp3 Cutter & Ringtone Maker'), findsOneWidget);
       expect(find.text('Cut Audio'), findsOneWidget);
       expect(find.text('Record'), findsOneWidget);
